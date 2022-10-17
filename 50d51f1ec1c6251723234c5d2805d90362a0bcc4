@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "50d51f1ec1c6251723234c5d2805d90362a0bcc4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c617b1f3_c8ee91de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001949
+      },
+      "writtenOn": "2022-10-17T06:05:53Z",
+      "side": 1,
+      "message": "adding INFO.yaml for new repository",
+      "revId": "50d51f1ec1c6251723234c5d2805d90362a0bcc4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
