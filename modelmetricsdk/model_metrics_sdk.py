@@ -28,6 +28,8 @@ import boto3
 from botocore.client import Config
 from modelmetricsdk.sdk_exception import SdkException
 from modelmetricsdk.singleton_manager import SingletonManager
+from kubernetes import client, config
+import base64
 
 class ModelMetricsSdk:
     """
@@ -41,9 +43,20 @@ class ModelMetricsSdk:
             "s3",
             endpoint_url = self.config["endpoint_url"],
             aws_access_key_id = self.config["aws_access_key_id"],
-            aws_secret_access_key = self.config["aws_secret_access_key"],
+            aws_secret_access_key = self.get_aws_key(),
             config=Config(signature_version="s3v4"),
         )
+
+    def get_aws_key(self):
+        """
+            This function would retrieve aws_secret_access_key from kubernetes secrets
+        """
+        config.load_incluster_config()
+        v1 = client.CoreV1Api()
+        sec = v1.read_namespaced_secret("leofs-secret", 'kubeflow').data
+        aws_key = base64.b64decode(sec.get("password")).decode('utf-8')
+        return aws_key
+
 
     def upload_model(self, model_path, trainingjob_name, version, model_under_version_folder=True):
         """
