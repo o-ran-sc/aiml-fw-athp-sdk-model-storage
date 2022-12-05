@@ -1,0 +1,5 @@
+pytest-cov
+mock
+pandas
+kubernetes
+boto3

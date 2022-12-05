@@ -1,0 +1,6 @@
+{
+	"model_db_config" : {
+		"endpoint_url" : "http://leofs.kubeflow:8080",
+		"aws_access_key_id" : "leofs"
+	}
+}
