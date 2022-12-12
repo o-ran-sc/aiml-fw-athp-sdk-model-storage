@@ -1,0 +1,7 @@
+Verified+1: ORAN Jobbuilder <releng+oran-jobbuilder@linuxfoundation.org>
+Code-Review+2: Joseph Thaliath <jo.thaliath@samsung.com>
+Submitted-by: Joseph Thaliath <jo.thaliath@samsung.com>
+Submitted-at: Mon, 12 Dec 2022 13:25:22 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/aiml-fw/athp/sdk/model-storage/+/10081
+Project: aiml-fw/athp/sdk/model-storage
+Branch: refs/heads/master
