@@ -31,6 +31,8 @@ from modelmetricsdk.singleton_manager import SingletonManager
 from kubernetes import client, config
 import base64
 
+
+
 class ModelMetricsSdk:
     """
     This class is used for working with object database.
@@ -207,11 +209,12 @@ class ModelMetricsSdk:
         return value:
             zip file in memory
         """
+        download_folder = '/tmp/download'
         try:
             model_file_name = "Model.zip"
             model_object = str(version) + "/" + model_file_name
-            path = os.path.join('/tmp/download', trainingjob_name + "_" + version, model_file_name)
-            path_without_model_file = os.path.join('/tmp/download', trainingjob_name + "_" + version)
+            path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
+            path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
             if not os.path.exists(path_without_model_file):
                 self.logger.debug("create folder in tmp")
                 os.makedirs(path_without_model_file)
@@ -245,11 +248,12 @@ class ModelMetricsSdk:
         return value:
             None
         """
+        download_folder = '/tmp/download'
         try:
             model_file_name = "Model.zip"
             model_object = str(version) + "/" + model_file_name
-            path = os.path.join('/tmp/download', trainingjob_name + "_" + version, model_file_name)
-            path_without_model_file = os.path.join('/tmp/download', trainingjob_name + "_" + version)
+            path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
+            path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
             if not os.path.exists(path_without_model_file):
                 self.logger.debug("create folder in tmp")
                 os.makedirs(path_without_model_file)
@@ -300,7 +304,7 @@ class ModelMetricsSdk:
                 should_be_deleted.append({'Key' : f'{version}/metrics.json'})
             if self.check_object(trainingjob_name, version, 'metadata.json'):
                 should_be_deleted.append({'Key' : '{}/metadata.json'.format(version)})
-            for i in range(3):
+            for _ in range(3):
                 self.logger.debug("should be deleted files: {}".format(str(should_be_deleted)))
                 response = self.client.delete_objects(
                         Bucket = trainingjob_name,
@@ -342,7 +346,7 @@ class ModelMetricsSdk:
             self.logger.debug(str(err))
             return False
 
-        if not 'Contents' in response:
+        if 'Contents' not in response:
             self.logger.debug("{} bucket's response has no Contents".format(trainingjob_name))
             return False
 

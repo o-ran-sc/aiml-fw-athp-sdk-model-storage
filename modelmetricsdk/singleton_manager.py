@@ -19,7 +19,6 @@
 """
 This module is used to get sdk configuration and logger.
 """
-#import yaml
 import logging
 import logging.handlers
 import json
