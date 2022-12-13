@@ -209,11 +209,11 @@ class ModelMetricsSdk:
             zip file in memory
         """
         try:
-            with tempfile.TemporaryDirectory() as download_folder:     
+            with tempfile.TemporaryDirectory() as model_download_folder:     
                 model_file_name = "Model.zip"
                 model_object = str(version) + "/" + model_file_name
-                path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
-                path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
+                path = os.path.join(model_download_folder, trainingjob_name + "_" + version, model_file_name)
+                path_without_model_file = os.path.join(model_download_folder, trainingjob_name + "_" + version)
                 if not os.path.exists(path_without_model_file):
                     self.logger.debug("create folder in tmp")
                     os.makedirs(path_without_model_file)
