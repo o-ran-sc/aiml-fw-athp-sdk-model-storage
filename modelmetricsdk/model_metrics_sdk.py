@@ -22,6 +22,7 @@ This module is used for working with object database.
 import json
 import traceback
 import os
+import tempfile
 import shutil
 from io import BytesIO
 import boto3
@@ -75,59 +76,57 @@ class ModelMetricsSdk:
             None
         """
         try:
-            copy_path = f"/tmp/copy/{version}"
-            if not model_under_version_folder:
-                copy_path = "/tmp/copy/"
-            shutil.copytree(model_path, copy_path)
-            model_path = "/tmp/copy/"
+            # Create a temporary Directory for copying model from model_path
+            with tempfile.TemporaryDirectory() as model_copy_dir:
+                model_copy_dir = model_copy_dir + '/copy/'
+                if model_under_version_folder:
+                    # Copy the model in another directory named with "version number"
+                    version_path = os.path.join(model_copy_dir, str(version))
+                    shutil.copytree(model_path, version_path)
+                else:
+                    shutil.copytree(model_path, model_copy_dir)
 
-            export_bucket = trainingjob_name
+                export_bucket = trainingjob_name
 
-            # Create export bucket if it does not yet exist
-            response = self.client.list_buckets()
-            export_bucket_exists = False
-            for bucket in response["Buckets"]:
-                if bucket["Name"] == export_bucket:
-                    export_bucket_exists = True
-            if not export_bucket_exists:
-                self.logger.debug("{} bucket is creating".format(export_bucket))
-                self.client.create_bucket(Bucket=export_bucket)
-                self.logger.debug("{} bucket is created".format(export_bucket))
+                # Create export bucket if it does not yet exist
+                response = self.client.list_buckets()
+                export_bucket_exists = False
+                for bucket in response["Buckets"]:
+                    if bucket["Name"] == export_bucket:
+                        export_bucket_exists = True
+                if not export_bucket_exists:
+                    self.logger.debug("{} bucket is creating".format(export_bucket))
+                    self.client.create_bucket(Bucket=export_bucket)
+                    self.logger.debug("{} bucket is created".format(export_bucket))
 
-            json_object = { "model_under_version_folder" : model_under_version_folder}
-            self.client.put_object(
-                Body=json.dumps(json_object),
-                Bucket=trainingjob_name,
-                Key= str(version) + "/" + "metadata.json"
-            )
+                json_object = { "model_under_version_folder" : model_under_version_folder}
+                self.client.put_object(
+                    Body=json.dumps(json_object),
+                    Bucket=trainingjob_name,
+                    Key= str(version) + "/" + "metadata.json"
+                )
 
-            model_file_name = "Model"
-            model_object = model_file_name + '.zip'
-            zip_file_full_path = f"/tmp/upload/{model_file_name}.zip"
-            zip_file_full_path_without_extention = f"/tmp/upload/{model_file_name}"
-            shutil.make_archive(zip_file_full_path_without_extention, 'zip', model_path)
+                # Creating another temporary directory to Archive Model.zip that would get uploaded
+                with tempfile.TemporaryDirectory() as upload_dir:
+                    model_file_name = "Model"
+                    model_object = model_file_name + '.zip'
+                    zip_file_full_path = upload_dir +  '/' + model_file_name + '.zip'
+                    zip_file_full_path_without_extention = upload_dir +  '/' + model_file_name
+                    shutil.make_archive(zip_file_full_path_without_extention, 'zip', model_copy_dir)
 
-            self.logger.debug("putting object inside bucket")
-            self.client.upload_file(
-                    zip_file_full_path,
-                    export_bucket,
-                    str(version) +"/" + model_object
-            )
-            self.logger.debug("object is put inside bucket")
-
+                    self.logger.debug("putting object inside bucket!!")
+                    self.client.upload_file(
+                            zip_file_full_path,
+                            export_bucket,
+                            str(version) +"/" + model_object
+                    )
+                    self.logger.debug("object is put inside bucket")
+                    # After Uploading, Temporary directories would get deleted automatically when upload_dir and model_copy_dir goes out of scope
             response = self.client.list_objects(Bucket=export_bucket, Prefix="")
             self.logger.debug("All objects in %s:",export_bucket)
             for file in response["Contents"]:
                 self.logger.debug("%s/%s",export_bucket,file['Key'])
 
-
-            remove_directory = "/tmp/upload"
-            if remove_directory and os.path.exists(remove_directory):
-                shutil.rmtree(remove_directory, ignore_errors=False)
-
-            remove_directory = "/tmp/copy"
-            if remove_directory and os.path.exists(remove_directory):
-                shutil.rmtree(remove_directory, ignore_errors=False)
         except Exception as err:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
@@ -209,31 +208,27 @@ class ModelMetricsSdk:
         return value:
             zip file in memory
         """
-        download_folder = '/tmp/download'
         try:
-            model_file_name = "Model.zip"
-            model_object = str(version) + "/" + model_file_name
-            path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
-            path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
-            if not os.path.exists(path_without_model_file):
-                self.logger.debug("create folder in tmp")
-                os.makedirs(path_without_model_file)
-            self.logger.debug("start downloading")
-            self.client.download_file(
-                    Bucket = trainingjob_name,
-                    Key = model_object,
-                    Filename = path
-                    )
-            self.logger.debug("finish downloading")
-            return_data = BytesIO()
-            with open(path, 'rb') as file_open:
-                return_data.write(file_open.read())
-            return_data.seek(0)
-            if path_without_model_file and os.path.exists(path_without_model_file):
-                self.logger.debug("start removing from tmp folder")
-                shutil.rmtree(path_without_model_file, ignore_errors=False)
-                self.logger.debug("removing from tmp folder is finished")
-            return return_data
+            with tempfile.TemporaryDirectory() as download_folder:     
+                model_file_name = "Model.zip"
+                model_object = str(version) + "/" + model_file_name
+                path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
+                path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
+                if not os.path.exists(path_without_model_file):
+                    self.logger.debug("create folder in tmp")
+                    os.makedirs(path_without_model_file)
+                self.logger.debug("start downloading")
+                self.client.download_file(
+                        Bucket = trainingjob_name,
+                        Key = model_object,
+                        Filename = path
+                        )
+                self.logger.debug("finish downloading")
+                return_data = BytesIO()
+                with open(path, 'rb') as file_open:
+                    return_data.write(file_open.read())
+                return_data.seek(0)
+                return return_data
         except Exception as err:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
@@ -248,39 +243,34 @@ class ModelMetricsSdk:
         return value:
             None
         """
-        download_folder = '/tmp/download'
         try:
-            model_file_name = "Model.zip"
-            model_object = str(version) + "/" + model_file_name
-            path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
-            path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
-            if not os.path.exists(path_without_model_file):
-                self.logger.debug("create folder in tmp")
-                os.makedirs(path_without_model_file)
-            self.logger.debug("start downloading")
-            self.client.download_file(
-                    Bucket = trainingjob_name,
-                    Key = model_object,
-                    Filename = path
-                    )
-            self.logger.debug("finish downloading")
-            shutil.unpack_archive(path, extract_dir=path_without_model_file)
-            response = self.client.get_object(
-                    Bucket = trainingjob_name,
-                    Key = str(version) + "/" + "metadata.json"
-                    )
-            json_bytes = response['Body'].read()
-            model_under_version_folder = json.loads(json_bytes)['model_under_version_folder']
-            if model_under_version_folder:
-                shutil.copytree(os.path.join(path_without_model_file, version),
-                                download_path, dirs_exist_ok=True)
-            else:
-                shutil.copytree(path_without_model_file, download_path, dirs_exist_ok=True)
-            if path_without_model_file and os.path.exists(path_without_model_file):
-                self.logger.debug("start removing from tmp folder")
-                shutil.rmtree(path_without_model_file, ignore_errors=False)
-                self.logger.debug("removing from tmp folder is finished")
-
+            with tempfile.TemporaryDirectory() as download_folder:
+                model_file_name = "Model.zip"
+                model_object = str(version) + "/" + model_file_name
+                path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
+                path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
+                if not os.path.exists(path_without_model_file):
+                    self.logger.debug("create folder in tmp")
+                    os.makedirs(path_without_model_file)
+                self.logger.debug("start downloading")
+                self.client.download_file(
+                        Bucket = trainingjob_name,
+                        Key = model_object,
+                        Filename = path
+                        )
+                self.logger.debug("finish downloading")
+                shutil.unpack_archive(path, extract_dir=path_without_model_file)
+                response = self.client.get_object(
+                        Bucket = trainingjob_name,
+                        Key = str(version) + "/" + "metadata.json"
+                        )
+                json_bytes = response['Body'].read()
+                model_under_version_folder = json.loads(json_bytes)['model_under_version_folder']
+                if model_under_version_folder:
+                    shutil.copytree(os.path.join(path_without_model_file, version),
+                                    download_path, dirs_exist_ok=True)
+                else:
+                    shutil.copytree(path_without_model_file, download_path, dirs_exist_ok=True)
         except Exception as err:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
