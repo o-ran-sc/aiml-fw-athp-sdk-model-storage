@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8020efa9_a27f0b48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000475
+      },
+      "writtenOn": "2024-04-25T10:03:11Z",
+      "side": 1,
+      "message": "JobBuilder is okay but the release is failing due to unavailability of test coverage.",
+      "revId": "9d01ccb90165b3892314b35a58a5ed44b795bbd7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
