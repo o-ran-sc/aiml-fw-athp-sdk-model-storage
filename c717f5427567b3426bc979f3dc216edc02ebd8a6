@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "c717f5427567b3426bc979f3dc216edc02ebd8a6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc60a492_2e2a7b28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000059
+      },
+      "writtenOn": "2024-05-10T17:28:46Z",
+      "side": 1,
+      "message": "Seems like GHA was down , but verify just triggered and passed 😐",
+      "revId": "c717f5427567b3426bc979f3dc216edc02ebd8a6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
