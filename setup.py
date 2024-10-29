@@ -16,7 +16,8 @@
 #
 # ==================================================================================
 
-from setuptools import setup
+from setuptools import setup, find_packages
+import setuptools as setuptools
 setup(
     name='modelmetricsdk',
     version='0.1',
@@ -25,6 +26,7 @@ setup(
     author='Joseph Thaliath',
     author_email='jo.thaliath@samsung.com',
     license='Apache 2.0',
-    packages=['modelmetricsdk'],
+    packages=find_packages(exclude=['test','docs']),
+    package_data={"modelmetricsdk": ['config/config.json']},
     zip_safe=False
 )

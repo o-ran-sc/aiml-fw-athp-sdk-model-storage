@@ -23,6 +23,7 @@ import logging
 import logging.handlers
 import json
 import sys
+import pkg_resources
 from modelmetricsdk.sdk_exception import SdkException
 
 class SingletonManager:
@@ -70,7 +71,9 @@ class SingletonManager:
 
             self.__logger.propagate = False
 
-            with open(prefix_sdk + '/SDK/modelmetricssdk_main/config/config.json', encoding="utf-8") as config:
+            config_path = pkg_resources.resource_filename('modelmetricsdk', 'config/config.json')
+            self.__logger.debug('configpath: %s', config_path)
+            with open(config_path, encoding="utf-8") as config:
                 self.__config = json.load(config)
 
             SingletonManager.__instance = self
