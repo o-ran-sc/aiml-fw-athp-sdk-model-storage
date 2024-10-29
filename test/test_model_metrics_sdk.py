@@ -105,15 +105,16 @@ class bucket_helper():
             return []
 
 
-
+mock_resource_filename = 'test/config/config.json'
 class Test_model_metrics_sdk():
     @patch('modelmetricsdk.model_metrics_sdk.config.load_incluster_config')
     @patch('modelmetricsdk.model_metrics_sdk.client.CoreV1Api', return_value= pwd_helper())
     @patch('modelmetricsdk.model_metrics_sdk.boto3.client', return_value = bucket_helper())
     @patch('modelmetricsdk.singleton_manager.open', return_value=open("test/config/config.json", encoding="utf-8"))
+    @patch('pkg_resources.resource_filename', return_value=mock_resource_filename)
     @patch('modelmetricsdk.singleton_manager.logging.handlers.RotatingFileHandler', return_value = logging.handlers.RotatingFileHandler('test_modelmetricsdk.log',
                     maxBytes=10485760, backupCount=20, encoding='utf-8'))
-    def setup_method(self, mock1, mock2, mock3, mock4, mock5, mock6):
+    def setup_method(self, mock1, mock2, mock3, mock4, mock5, mock6, mock7):
         self.obj = ModelMetricsSdk()
         self.trainingjob_name = 'mynetwork'
         self.version = "1"
