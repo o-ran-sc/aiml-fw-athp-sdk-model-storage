@@ -26,7 +26,7 @@ setup(
     author='Joseph Thaliath',
     author_email='jo.thaliath@samsung.com',
     license='Apache 2.0',
-    packages=find_packages(exclude=['test','docs']),
+    packages=['modelmetricsdk'],
     package_data={"modelmetricsdk": ['config/config.json']},
     zip_safe=False,
     long_description=open('README.md').read(),
