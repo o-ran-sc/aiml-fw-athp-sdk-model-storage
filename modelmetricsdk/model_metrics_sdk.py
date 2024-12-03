@@ -61,7 +61,7 @@ class ModelMetricsSdk:
         return aws_key
 
 
-    def upload_model(self, model_path, trainingjob_name, version, model_under_version_folder=True):
+    def upload_model(self, model_path, model_name, model_version, artifact_version, model_under_version_folder=True):
         """
         This function upload folder/file which is at model_path in bucket with version prefix
         as zip file. if model_under_version_folder is True then folder/file which is at model_path
@@ -81,12 +81,12 @@ class ModelMetricsSdk:
                 model_copy_dir = model_copy_dir + '/copy/'
                 if model_under_version_folder:
                     # Copy the model in another directory named with "version number"
-                    version_path = os.path.join(model_copy_dir, str(version))
+                    version_path = os.path.join(model_copy_dir, str(model_version))
                     shutil.copytree(model_path, version_path)
                 else:
                     shutil.copytree(model_path, model_copy_dir)
 
-                export_bucket = trainingjob_name
+                export_bucket = model_name
 
                 # Create export bucket if it does not yet exist
                 response = self.client.list_buckets()
@@ -102,8 +102,8 @@ class ModelMetricsSdk:
                 json_object = { "model_under_version_folder" : model_under_version_folder}
                 self.client.put_object(
                     Body=json.dumps(json_object),
-                    Bucket=trainingjob_name,
-                    Key= str(version) + "/" + "metadata.json"
+                    Bucket=model_name,
+                    Key= str(model_version) + "/" + str(artifact_version) + "/" + "metadata.json"
                 )
 
                 # Creating another temporary directory to Archive Model.zip that would get uploaded
@@ -118,7 +118,7 @@ class ModelMetricsSdk:
                     self.client.upload_file(
                             zip_file_full_path,
                             export_bucket,
-                            str(version) +"/" + model_object
+                            str(model_version) + "/" + str(artifact_version) + "/" + model_object
                     )
                     self.logger.debug("object is put inside bucket")
                     # After Uploading, Temporary directories would get deleted automatically when upload_dir and model_copy_dir goes out of scope
@@ -131,18 +131,19 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def upload_metrics(self, metrics, trainingjob_name, version):
+    def upload_metrics(self, metrics, model_name, model_version, artifact_version):
         """
         This function upload dictionary represting metrics in bucket with version prefix.
         args:
             metrics: dictionary represting metrics
-            trainingjob_name: bucket name
-            version: version
+            model_name: bucket name
+            model_version: version
+            artifact_version : path of model
         return value:
             None
         """
         try:
-            export_bucket = trainingjob_name
+            export_bucket = model_name
 
             # Create export bucket if it does not yet exist
             response = self.client.list_buckets()
@@ -157,7 +158,7 @@ class ModelMetricsSdk:
 
             json_object = metrics
             metrics_file_name = "metrics.json"
-            metrics_object = str(version) + "/" + metrics_file_name
+            metrics_object = str(model_version) + "/" + str(artifact_version) + "/" + metrics_file_name
 
             self.logger.debug("putting object inside bucket")
             self.client.put_object(
@@ -175,7 +176,7 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def get_metrics(self, trainingjob_name, version):
+    def get_metrics(self, model_name, model_version, artifact_version):
         """
         This function returns dictionary represting metrics in bucket with version prefix.
         args:
@@ -186,10 +187,10 @@ class ModelMetricsSdk:
         """
         try:
             metrics_file_name = "metrics.json"
-            metrics_object = str(version) + "/" + metrics_file_name
+            metrics_object = str(model_version) + "/" + str(artifact_version) + "/" + metrics_file_name
             self.logger.debug("fetching json object")
             response = self.client.get_object(
-                    Bucket = trainingjob_name,
+                    Bucket = model_name,
                     Key = metrics_object
                     )
             json_bytes = response['Body'].read()
@@ -199,7 +200,7 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def get_model_zip(self, trainingjob_name, version):
+    def get_model_zip(self, model_name, model_version, artifact_version):
         """
         This function returns model zip file in memory from bucket whose prefix is version
         args:
@@ -211,15 +212,15 @@ class ModelMetricsSdk:
         try:
             with tempfile.TemporaryDirectory() as model_download_folder:     
                 model_file_name = "Model.zip"
-                model_object = str(version) + "/" + model_file_name
-                path = os.path.join(model_download_folder, trainingjob_name + "_" + version, model_file_name)
-                path_without_model_file = os.path.join(model_download_folder, trainingjob_name + "_" + version)
+                model_object = str(model_version) + "/" + str(artifact_version) + "/" + model_file_name
+                path = os.path.join(model_download_folder, model_name + "_" + model_version + "_" + artifact_version, model_file_name)
+                path_without_model_file = os.path.join(model_download_folder, model_name + "_" + model_version + "_" + artifact_version)
                 if not os.path.exists(path_without_model_file):
                     self.logger.debug("create folder in tmp")
                     os.makedirs(path_without_model_file)
                 self.logger.debug("start downloading")
                 self.client.download_file(
-                        Bucket = trainingjob_name,
+                        Bucket = model_name,
                         Key = model_object,
                         Filename = path
                         )
@@ -233,7 +234,7 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def get_model(self, trainingjob_name, version, download_path):
+    def get_model(self, model_name, model_version,artifact_version, download_path):
         """
         This function download model from bucket whose prefix is version at download_path
         args:
@@ -246,28 +247,28 @@ class ModelMetricsSdk:
         try:
             with tempfile.TemporaryDirectory() as download_folder:
                 model_file_name = "Model.zip"
-                model_object = str(version) + "/" + model_file_name
-                path = os.path.join(download_folder, trainingjob_name + "_" + version, model_file_name)
-                path_without_model_file = os.path.join(download_folder, trainingjob_name + "_" + version)
+                model_object = str(model_version) + "/" + str(artifact_version) + "/" + model_file_name
+                path = os.path.join(download_folder, model_name + "_" + model_version + "_" + artifact_version, model_file_name)
+                path_without_model_file = os.path.join(download_folder, model_name + "_" + model_version + "_" + artifact_version)
                 if not os.path.exists(path_without_model_file):
                     self.logger.debug("create folder in tmp")
                     os.makedirs(path_without_model_file)
                 self.logger.debug("start downloading")
                 self.client.download_file(
-                        Bucket = trainingjob_name,
+                        Bucket = model_name,
                         Key = model_object,
                         Filename = path
                         )
                 self.logger.debug("finish downloading")
                 shutil.unpack_archive(path, extract_dir=path_without_model_file)
                 response = self.client.get_object(
-                        Bucket = trainingjob_name,
-                        Key = str(version) + "/" + "metadata.json"
+                        Bucket = model_name,
+                        Key = str(model_version) + "/" + str(artifact_version) + "/" + "metadata.json"
                         )
                 json_bytes = response['Body'].read()
                 model_under_version_folder = json.loads(json_bytes)['model_under_version_folder']
                 if model_under_version_folder:
-                    shutil.copytree(os.path.join(path_without_model_file, version),
+                    shutil.copytree(os.path.join(path_without_model_file, str(model_version)),
                                     download_path, dirs_exist_ok=True)
                 else:
                     shutil.copytree(path_without_model_file, download_path, dirs_exist_ok=True)
@@ -275,7 +276,7 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def delete_model_metric(self, trainingjob_name, version):
+    def delete_model_metric(self, model_name, model_version, artifact_version):
         """
         This functions return True if all objects with version prefix are deleted otherwise
         it returns False
@@ -288,16 +289,16 @@ class ModelMetricsSdk:
         """
         try:
             should_be_deleted = []
-            if self.check_object(trainingjob_name, version, 'Model.zip'):
-                should_be_deleted.append({'Key' : f'{version}/Model.zip'})
-            if self.check_object(trainingjob_name, version, 'metrics.json'):
-                should_be_deleted.append({'Key' : f'{version}/metrics.json'})
-            if self.check_object(trainingjob_name, version, 'metadata.json'):
-                should_be_deleted.append({'Key' : '{}/metadata.json'.format(version)})
+            if self.check_object(model_name, model_version, artifact_version, 'Model.zip'):
+                should_be_deleted.append({'Key' : f'{model_version}/{artifact_version}/Model.zip'})
+            if self.check_object(model_name, model_version, artifact_version, 'metrics.json'):
+                should_be_deleted.append({'Key' : f'{model_version}/{artifact_version}/metrics.json'})
+            if self.check_object(model_name, model_version, artifact_version, 'metadata.json'):
+                should_be_deleted.append({'Key' : f'{model_version}/{artifact_version}/metadata.json'})
             for _ in range(3):
                 self.logger.debug("should be deleted files: {}".format(str(should_be_deleted)))
                 response = self.client.delete_objects(
-                        Bucket = trainingjob_name,
+                        Bucket = model_name,
                         Delete = {
                             'Objects' : should_be_deleted
                             }
@@ -315,7 +316,7 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def check_object(self, trainingjob_name, version, file_name):
+    def check_object(self, model_name, model_version, artifact_version, file_name):
         """
         This function checks object is present in bucket with versions prefix.
         args:
@@ -328,8 +329,8 @@ class ModelMetricsSdk:
         """
         try:
             response = self.client.list_objects(
-                    Bucket = trainingjob_name,
-                    Prefix = str(version) + "/"
+                    Bucket = model_name,
+                    Prefix = str(model_version) + "/" + str(artifact_version) + "/"
                     )
  
         except Exception as err:# pylint: disable=broad-except
@@ -337,16 +338,16 @@ class ModelMetricsSdk:
             return False
 
         if 'Contents' not in response:
-            self.logger.debug("{} bucket's response has no Contents".format(trainingjob_name))
+            self.logger.debug("{} bucket's response has no Contents".format(model_name))
             return False
 
         for obj in response['Contents']:
-            if obj['Key'] == str(version) + "/" + file_name:
+            if obj['Key'] == str(model_version) + "/" + str(artifact_version) + "/" + file_name:
                 return True
-        self.logger.debug("%s not found in bucket:%s ,version:%s",file_name,trainingjob_name,version)
+        self.logger.debug("%s not found in bucket:%s ,version:%s , artifact_version:%s",file_name,model_name , model_version, artifact_version)
         return False
 
-    def is_bucket_present(self, trainingjob_name):
+    def is_bucket_present(self, model_name):
         """
         This function checks given bucket is present or not.
         args:
@@ -358,7 +359,7 @@ class ModelMetricsSdk:
         try:
             response = self.client.list_buckets()
             for bucket in response["Buckets"]:
-                if bucket["Name"] == trainingjob_name:
+                if bucket["Name"] == model_name:
                     return True
             return False
         except Exception as err:
