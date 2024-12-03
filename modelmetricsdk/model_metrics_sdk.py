@@ -61,7 +61,7 @@ class ModelMetricsSdk:
         return aws_key
 
 
-    def upload_model(self, model_path, trainingjob_name, version, model_under_version_folder=True):
+    def upload_model(self, model_path, model_name, model_version, artifact_version, model_under_version_folder=True):
         """
         This function upload folder/file which is at model_path in bucket with version prefix
         as zip file. if model_under_version_folder is True then folder/file which is at model_path
@@ -81,12 +81,12 @@ class ModelMetricsSdk:
                 model_copy_dir = model_copy_dir + '/copy/'
                 if model_under_version_folder:
                     # Copy the model in another directory named with "version number"
-                    version_path = os.path.join(model_copy_dir, str(version))
+                    version_path = os.path.join(model_copy_dir, str(model_version))
                     shutil.copytree(model_path, version_path)
                 else:
                     shutil.copytree(model_path, model_copy_dir)
 
-                export_bucket = trainingjob_name
+                export_bucket = model_name
 
                 # Create export bucket if it does not yet exist
                 response = self.client.list_buckets()
@@ -102,8 +102,8 @@ class ModelMetricsSdk:
                 json_object = { "model_under_version_folder" : model_under_version_folder}
                 self.client.put_object(
                     Body=json.dumps(json_object),
-                    Bucket=trainingjob_name,
-                    Key= str(version) + "/" + "metadata.json"
+                    Bucket=model_name,
+                    Key= str(model_version) + "/" + str(artifact_version) + "/" + "metadata.json"
                 )
 
                 # Creating another temporary directory to Archive Model.zip that would get uploaded
@@ -118,7 +118,7 @@ class ModelMetricsSdk:
                     self.client.upload_file(
                             zip_file_full_path,
                             export_bucket,
-                            str(version) +"/" + model_object
+                            str(model_version) + "/" + str(artifact_version) + model_object
                     )
                     self.logger.debug("object is put inside bucket")
                     # After Uploading, Temporary directories would get deleted automatically when upload_dir and model_copy_dir goes out of scope
@@ -131,18 +131,19 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def upload_metrics(self, metrics, trainingjob_name, version):
+    def upload_metrics(self, metrics, model_name, model_version, artifact_version):
         """
         This function upload dictionary represting metrics in bucket with version prefix.
         args:
             metrics: dictionary represting metrics
-            trainingjob_name: bucket name
-            version: version
+            model_name: bucket name
+            model_version: version
+            artifact_version : path of model
         return value:
             None
         """
         try:
-            export_bucket = trainingjob_name
+            export_bucket = model_name
 
             # Create export bucket if it does not yet exist
             response = self.client.list_buckets()
@@ -157,7 +158,7 @@ class ModelMetricsSdk:
 
             json_object = metrics
             metrics_file_name = "metrics.json"
-            metrics_object = str(version) + "/" + metrics_file_name
+            metrics_object = str(model_version) + "/" + str(artifact_version) + "/" + metrics_file_name
 
             self.logger.debug("putting object inside bucket")
             self.client.put_object(
@@ -175,7 +176,7 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def get_metrics(self, trainingjob_name, version):
+    def get_metrics(self, model_name, model_version, artifact_version):
         """
         This function returns dictionary represting metrics in bucket with version prefix.
         args:
@@ -186,10 +187,10 @@ class ModelMetricsSdk:
         """
         try:
             metrics_file_name = "metrics.json"
-            metrics_object = str(version) + "/" + metrics_file_name
+            metrics_object = str(model_version) + "/" + str(artifact_version) + "/" + metrics_file_name
             self.logger.debug("fetching json object")
             response = self.client.get_object(
-                    Bucket = trainingjob_name,
+                    Bucket = model_name,
                     Key = metrics_object
                     )
             json_bytes = response['Body'].read()
