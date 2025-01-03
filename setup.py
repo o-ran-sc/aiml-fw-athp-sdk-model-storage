@@ -20,11 +20,11 @@ from setuptools import setup, find_packages
 import setuptools as setuptools
 setup(
     name='modelmetricsdk',
-    version='0.1',
+    version='0.2',
     description='model store SDK for Training Host',
     url='',
-    author='Joseph Thaliath',
-    author_email='jo.thaliath@samsung.com',
+    author='O-RAN Software Community',
+    author_email='discuss@lists.o-ran-sc.org',
     license='Apache 2.0',
     packages=['modelmetricsdk'],
     package_data={"modelmetricsdk": ['config/config.json']},
