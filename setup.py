@@ -30,5 +30,8 @@ setup(
     package_data={"modelmetricsdk": ['config/config.json']},
     zip_safe=False,
     long_description=open('README.md').read(),
-    long_description_content_type='text/markdown'
+    long_description_content_type='text/markdown',
+    install_requires=['boto3',
+                      'kubernetes',
+                      'pyyaml']
 )
