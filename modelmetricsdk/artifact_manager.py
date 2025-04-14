@@ -79,7 +79,13 @@ class ArtifactManager:
             dataset_path (str): The local file path of the dataset to upload.
             dataset_name (str): The name of the dataset in the storage service.
         """
-        raise NotImplementedError("Upload need to be implemented")
+        self._logger.debug(f'Upload request for {dataset_path} with dataset_name:{dataset_name}')
+        try:
+            self.storage.upload_artifact(dataset_path, 'mlpipeline', dataset_name)
+            self._logger.debug(f'Uploaded dataset')
+        except Exception as e:
+            self._logger.debug(f'upload failed with error : {e}')
+            raise
 
     def download_dataset(self, dataset_name, dest_path: str):
         """
