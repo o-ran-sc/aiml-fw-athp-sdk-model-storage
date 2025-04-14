@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a88950ea_60c6e974",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001948
+      },
+      "writtenOn": "2025-04-14T07:34:31Z",
+      "side": 1,
+      "message": "Initial Implementation of S3-Storage-Adapter seems fine",
+      "revId": "5fcb35d566303bcb45131098f400265160f45965",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
