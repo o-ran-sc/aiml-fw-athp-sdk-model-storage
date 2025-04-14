@@ -134,8 +134,13 @@ class S3Storage(StorageAdapter):
             bucket_name (str): The name of the bucket where the artifact should be uploaded.
             key (str): The key (path) where the artifact should be stored within the bucket.
         """
-        # self.client.upload_file(artifact_path, bucket_name, key)
-        raise NotImplementedError("upload_artifact is currently not supported by s3 adapter")
+        try:
+            self._logger.debug(f'Uploading {artifact_path} to bucket:{bucket_name} with key:{key}')
+            self.client.upload_file(artifact_path, bucket_name, key)
+            self._logger.info(f'Successfully uploaded artifact: {artifact_path} to s3://{bucket_name}/{key}')
+        except Exception as e:
+            self._logger.error(f'Failed to upload {artifact_path} to s3://{bucket_name}/{key}')
+            raise
 
     def delete_artifact(self, bucket_name, key):
         """
