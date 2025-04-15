@@ -16,6 +16,29 @@
       "message": "Initial Implementation of S3-Storage-Adapter seems fine",
       "revId": "5fcb35d566303bcb45131098f400265160f45965",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2ad7d22_594fb146",
+        "filename": "modelmetricsdk/adapters/s3_adapter.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1002075
+      },
+      "writtenOn": "2025-04-15T08:01:22Z",
+      "side": 1,
+      "message": "please change the message to something more meaning full, for eg: \"trying to download the artifact\" or something like that.",
+      "range": {
+        "startLine": 160,
+        "startChar": 35,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "5fcb35d566303bcb45131098f400265160f45965",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
