@@ -39,6 +39,30 @@
       },
       "revId": "5fcb35d566303bcb45131098f400265160f45965",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4171c08_2d18e599",
+        "filename": "modelmetricsdk/adapters/s3_adapter.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1000475
+      },
+      "writtenOn": "2025-04-15T09:09:25Z",
+      "side": 1,
+      "message": "log message has been corrected",
+      "parentUuid": "e2ad7d22_594fb146",
+      "range": {
+        "startLine": 160,
+        "startChar": 35,
+        "endLine": 160,
+        "endChar": 43
+      },
+      "revId": "5fcb35d566303bcb45131098f400265160f45965",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
