@@ -1,0 +1,13 @@
+Verified+1: ORAN Required GHA <releng+oran.required.gha@linuxfoundation.org>
+Code-Review+1: Swaraj Kumar <swaraj.kumar@samsung.com>
+Verified+1: Rajdeep Singh <rajdeep.sin@samsung.com>
+Code-Review+2: Rajdeep Singh <rajdeep.sin@samsung.com>
+Verified+1: o-ran-sc release <collab-it+o-ran-sc-release@linuxfoundation.org>
+Code-Review+1: Ashish Jain <jain.ashish@samsung.com>
+Verified+1: ORAN Jobbuilder <releng+oran-jobbuilder@linuxfoundation.org>
+Submitted-by: Rajdeep Singh <rajdeep.sin@samsung.com>
+Submitted-at: Tue, 15 Apr 2025 07:56:26 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/aiml-fw/athp/sdk/model-storage/+/14310
+Comments-Total: 3
+Project: aiml-fw/athp/sdk/model-storage
+Branch: refs/heads/master
