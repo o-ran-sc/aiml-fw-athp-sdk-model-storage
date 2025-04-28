@@ -26,7 +26,7 @@ setup(
     author='O-RAN Software Community',
     author_email='discuss@lists.o-ran-sc.org',
     license='Apache 2.0',
-    packages=['modelmetricsdk'],
+    packages=['modelmetricsdk', 'modelmetricsdk.adapters'],
     package_data={"modelmetricsdk": ['config/config.json']},
     zip_safe=False,
     long_description=open('README.md').read(),
