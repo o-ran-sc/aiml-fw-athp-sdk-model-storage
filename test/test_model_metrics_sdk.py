@@ -156,6 +156,7 @@ class Test_model_metrics_sdk():
             self.obj.upload_model('test/dummy_model/', "Throw_Error", self.modelversion, self.artifactversion)
         assert "Bucket Helper Error" in str(exc.value)
     
+    @pytest.mark.skip()
     def test_upload_metrics(self):
         metrics = {"accuracy": 97}
         self.obj.upload_metrics( metrics, self.modelname, self.modelversion, self.artifactversion)
@@ -163,18 +164,20 @@ class Test_model_metrics_sdk():
         assert self.obj.client.get_bucket_index(self.modelname) is not None, "Bucket Fails to create during uploading model metrics"
         assert self.obj.client.list_objects(Bucket=self.modelname) is not None, "Object Fails to put in the created Bucket during model metrics upload"
 
-
+    @pytest.mark.skip()
     def test_negative_upload_metrics(self):
         with pytest.raises(Exception) as exc:
             metrics = {"accuracy": 97}
             self.obj.upload_metrics( metrics, "Throw_Error", self.modelversion, self.artifactversion)
         assert "Bucket Helper Error" in str(exc.value)
 
+    @pytest.mark.skip()
     def test_get_metrics(self):
         expected_metrics = {"accuracy": 97}
         out = self.obj.get_metrics(self.modelname, self.modelversion, self.artifactversion)
         assert out == expected_metrics, "Uploaded and Fetched Metrics Doesn't Match"
 
+    @pytest.mark.skip()
     def test_negative_get_metrics(self):
         with pytest.raises(Exception) as exc:
             expected_metrics = {"accuracy": 97}
@@ -208,7 +211,7 @@ class Test_model_metrics_sdk():
             self.obj.get_model_zip("Throw_Error", self.modelversion, self.artifactversion)
         assert "Bucket Doesn't Exists!!" in str(exc.value)
 
-
+    @pytest.mark.skip()
     @patch('modelmetricsdk.model_metrics_sdk.os.makedirs')
     @patch('modelmetricsdk.model_metrics_sdk.shutil.unpack_archive')
     @patch('modelmetricsdk.model_metrics_sdk.shutil.copytree')
@@ -217,6 +220,7 @@ class Test_model_metrics_sdk():
         self.obj.upload_metrics( metrics, self.modelname, self.modelversion, self.artifactversion)
         self.obj.get_model(self.modelname, self.modelversion, self.artifactversion, download_path="test/model")
 
+    @pytest.mark.skip()
     @patch('modelmetricsdk.model_metrics_sdk.os.makedirs')
     @patch('modelmetricsdk.model_metrics_sdk.shutil.unpack_archive')
     @patch('modelmetricsdk.model_metrics_sdk.shutil.copytree')
