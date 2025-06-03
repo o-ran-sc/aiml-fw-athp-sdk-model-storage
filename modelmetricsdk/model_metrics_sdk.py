@@ -24,6 +24,7 @@ import traceback
 import os
 import tempfile
 import shutil
+import requests
 from io import BytesIO
 import boto3
 from botocore.client import Config
@@ -42,6 +43,7 @@ class ModelMetricsSdk:
         sm_object = SingletonManager.get_instance()
         self.logger = sm_object.logger
         self.config = sm_object.config["model_db_config"]
+        self.tm_config = sm_object.config["tm_config"]
         self.client = boto3.client(
             "s3",
             endpoint_url = self.config["endpoint_url"],
@@ -131,54 +133,41 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def upload_metrics(self, metrics, model_name, model_version, artifact_version):
+    def upload_metrics(self, metrics, trainingjob_id):
         """
-        This function upload dictionary represting metrics in bucket with version prefix.
+        This function upload dictionary represting metrics to tm to be stored against trainingjob_id
         args:
             metrics: dictionary represting metrics
-            model_name: bucket name
-            model_version: version
-            artifact_version : path of model
+            trainingjob_id: Id of trainingjob against which metrics will be stored
         return value:
             None
         """
         try:
-            export_bucket = model_name
-
-            # Create export bucket if it does not yet exist
-            response = self.client.list_buckets()
-            export_bucket_exists = False
-            for bucket in response["Buckets"]:
-                if bucket["Name"] == export_bucket:
-                    export_bucket_exists = True
-            if not export_bucket_exists:
-                self.logger.debug("{} bucket is creating".format(export_bucket))
-                self.client.create_bucket(Bucket=export_bucket)
-                self.logger.debug("{} bucket is created".format(export_bucket))
-
-            json_object = metrics
-            metrics_file_name = "metrics.json"
-            metrics_object = str(model_version) + "/" + str(artifact_version) + "/" + metrics_file_name
-
-            self.logger.debug("putting object inside bucket")
-            self.client.put_object(
-                    Body=json.dumps(json_object),
-                    Bucket=export_bucket,
-                    Key=metrics_object
-            )
-            self.logger.debug("object is put inside bucket")
-
-            response = self.client.list_objects(Bucket=export_bucket, Prefix="")
-            self.logger.debug("All objects in %s:",export_bucket)
-            for file in response["Contents"]:
-                self.logger.debug("%s/%s",export_bucket,file['Key'])
+            self.logger.debug(f"Uploading Metrics {metrics} for trainingjob_id = {trainingjob_id}")
+            tm_host = self.tm_config["host"]
+            tm_port = self.tm_config["port"]
+            url = f"http://{tm_host}:{tm_port}/ai-ml-model-training/v1/training-jobs/update-model-metrics/{trainingjob_id}"
+            
+            self.logger.debug(f"Uploading Metrics to url : {url}")
+            response = requests.post(url, json=metrics)
+            if response.status_code == 200:
+                self.logger.debug("Metric Uploading Successfully")
+            else:
+                err_msg = f"TM-Update-Model-Metrics API doesn't returned 200 but returned {response.status_code} with message : {response.json()}"
+                self.logger.error(err_msg)
+                raise SdkException(err_msg) from None
+        except requests.RequestException as err:
+            err_msg = f"Error communicating with TM : {str(err)}"
+            self.logger.error(err_msg)
+            raise SdkException(err_msg) from None
         except Exception as err:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def get_metrics(self, model_name, model_version, artifact_version):
+    
+    def get_metrics(self, trainingjob_id):
         """
-        This function returns dictionary represting metrics in bucket with version prefix.
+        This function returns dictionary represting metrics corresponding to trainingjob_id.
         args:
             trainingjob_name: bucket name
             version: version
@@ -186,16 +175,25 @@ class ModelMetricsSdk:
             dictionary represting metrics
         """
         try:
-            metrics_file_name = "metrics.json"
-            metrics_object = str(model_version) + "/" + str(artifact_version) + "/" + metrics_file_name
-            self.logger.debug("fetching json object")
-            response = self.client.get_object(
-                    Bucket = model_name,
-                    Key = metrics_object
-                    )
-            json_bytes = response['Body'].read()
-            self.logger.debug("stored json: {}".format(str(json_bytes)))
-            return json.loads(json_bytes)
+            self.logger.debug(f"Retrieving Metrics for trainingjob_id = {trainingjob_id}")
+            tm_host = self.tm_config["host"]
+            tm_port = self.tm_config["port"]
+            url = f"http://{tm_host}:{tm_port}/ai-ml-model-training/v1/training-jobs/get-model-metrics/{trainingjob_id}"
+            
+            self.logger.debug(f"Retrieving Model-Metrics from url : {url}")
+            response = requests.get(url)
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                err_msg = f"TM-Get-Model-Metrics API doesn't returned 200 but returned {response.status_code} with message : {response.json()}"
+                self.logger.error(err_msg)
+                raise SdkException(err_msg) from None
+            
+        except requests.RequestException as err:
+            err_msg = f"Error communicating with TM : {str(err)}"
+            self.logger.error(err_msg)
+            raise SdkException(err_msg) from None
         except Exception as err:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
