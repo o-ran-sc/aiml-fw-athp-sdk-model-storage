@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82ea9259_0b36091c",
+        "filename": "modelmetricsdk/model_metrics_sdk.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2025-06-05T05:46:26Z",
+      "side": 1,
+      "message": "What about removing this method instead of leaving it as archived if it\u0027s unnecessary?",
+      "revId": "27c9166dd042872e7b2772e74075a5848e8d3d7b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e9ab875_ed2292e4",
+        "filename": "modelmetricsdk/model_metrics_sdk.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1002137
+      },
+      "writtenOn": "2025-06-05T05:46:26Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "27c9166dd042872e7b2772e74075a5848e8d3d7b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
