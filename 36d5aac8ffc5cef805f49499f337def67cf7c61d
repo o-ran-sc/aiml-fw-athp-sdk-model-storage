@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "36d5aac8ffc5cef805f49499f337def67cf7c61d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "feb6f8c4_fc1e2963",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000475
+      },
+      "writtenOn": "2025-06-10T09:19:17Z",
+      "side": 1,
+      "message": "Merging job to ensure build is passed and upgraded to `3.10`.",
+      "revId": "36d5aac8ffc5cef805f49499f337def67cf7c61d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
