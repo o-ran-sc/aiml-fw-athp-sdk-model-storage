@@ -15,9 +15,8 @@
 #   limitations under the License.
 #
 # ==================================================================================
-from abc import ABC, abstractmethod
 
-class StorageAdapter(ABC):
+class StorageAdapter:
     """
     Abstract class for storage operations.
 
@@ -30,7 +29,6 @@ class StorageAdapter(ABC):
         None
     """
 
-    @abstractmethod
     def download_artifact(self, bucket_name, key, download_path):
         """
         Download an artifact from the storage service.
@@ -52,7 +50,6 @@ class StorageAdapter(ABC):
         """
         pass
 
-    @abstractmethod
     def upload_artifact(self, artifact_path, bucket_name, key):
         """
         Upload an artifact to the storage service.
@@ -73,7 +70,6 @@ class StorageAdapter(ABC):
         """
         pass
 
-    @abstractmethod
     def delete_artifact(self, bucket_name, key):
         """
         Delete an artifact from the storage service.

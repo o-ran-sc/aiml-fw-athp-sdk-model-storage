@@ -31,7 +31,7 @@ setup(
     zip_safe=False,
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    install_requires=['boto3',
+    install_requires=['boto3==1.37.38',
                       'kubernetes',
                       'pyyaml']
 )
