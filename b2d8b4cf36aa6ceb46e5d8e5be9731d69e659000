@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "95c63359_c8e3e34e",
+        "filename": "modelmetricsdk/model_metrics_sdk.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 1001948
+      },
+      "writtenOn": "2025-06-13T11:53:49Z",
+      "side": 1,
+      "message": "Raised!!",
+      "parentUuid": "5c503f25_f5400c10",
+      "range": {
+        "startLine": 264,
+        "startChar": 12,
+        "endLine": 264,
+        "endChar": 38
+      },
+      "revId": "b2d8b4cf36aa6ceb46e5d8e5be9731d69e659000",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4b8804a5_c9056272",
         "filename": "test/test_model_metrics_sdk.py",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2025-06-13T11:39:11Z",
       "side": 1,
       "message": "I hope this will be done in next commit.",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 23
+      },
+      "revId": "b2d8b4cf36aa6ceb46e5d8e5be9731d69e659000",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "427b064c_85f60c4e",
+        "filename": "test/test_model_metrics_sdk.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1001948
+      },
+      "writtenOn": "2025-06-13T11:53:49Z",
+      "side": 1,
+      "message": "Yes, I will raise another commit for the UT\u0027s",
+      "parentUuid": "4b8804a5_c9056272",
       "range": {
         "startLine": 159,
         "startChar": 0,
