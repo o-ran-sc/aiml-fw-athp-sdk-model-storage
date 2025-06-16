@@ -232,48 +232,6 @@ class ModelMetricsSdk:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
 
-    def get_model(self, model_name, model_version,artifact_version, download_path):
-        """
-        This function download model from bucket whose prefix is version at download_path
-        args:
-            trainingjob_name: bucket name
-            version: version
-            download_path: download path
-        return value:
-            None
-        """
-        try:
-            with tempfile.TemporaryDirectory() as download_folder:
-                model_file_name = "Model.zip"
-                model_object = str(model_version) + "/" + str(artifact_version) + "/" + model_file_name
-                path = os.path.join(download_folder, model_name + "_" + model_version + "_" + artifact_version, model_file_name)
-                path_without_model_file = os.path.join(download_folder, model_name + "_" + model_version + "_" + artifact_version)
-                if not os.path.exists(path_without_model_file):
-                    self.logger.debug("create folder in tmp")
-                    os.makedirs(path_without_model_file)
-                self.logger.debug("start downloading")
-                self.client.download_file(
-                        Bucket = model_name,
-                        Key = model_object,
-                        Filename = path
-                        )
-                self.logger.debug("finish downloading")
-                shutil.unpack_archive(path, extract_dir=path_without_model_file)
-                response = self.client.get_object(
-                        Bucket = model_name,
-                        Key = str(model_version) + "/" + str(artifact_version) + "/" + "metadata.json"
-                        )
-                json_bytes = response['Body'].read()
-                model_under_version_folder = json.loads(json_bytes)['model_under_version_folder']
-                if model_under_version_folder:
-                    shutil.copytree(os.path.join(path_without_model_file, str(model_version)),
-                                    download_path, dirs_exist_ok=True)
-                else:
-                    shutil.copytree(path_without_model_file, download_path, dirs_exist_ok=True)
-        except Exception as err:
-            self.logger.error(traceback.format_exc())
-            raise SdkException(str(err)) from None
-
     def delete_model_metric(self, model_name, model_version, artifact_version):
         """
         This functions return True if all objects with version prefix are deleted otherwise

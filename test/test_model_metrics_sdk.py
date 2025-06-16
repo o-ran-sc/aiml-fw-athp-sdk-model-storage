@@ -16,7 +16,7 @@
 #
 # ==================================================================================
 from modelmetricsdk.model_metrics_sdk import ModelMetricsSdk
-from mock import patch
+from mock import patch, MagicMock
 import base64
 import pytest
 import json
@@ -124,6 +124,7 @@ class Test_model_metrics_sdk():
         self.modelname = "mymodel"
         self.modelversion = "v1.0.0"
         self.artifactversion = "1"
+        self.trainingjob_id = 1
     
     def test_init(self):
         assert self.obj != None, 'Model Metrics Sdk Object Creation Failed'
@@ -156,33 +157,41 @@ class Test_model_metrics_sdk():
             self.obj.upload_model('test/dummy_model/', "Throw_Error", self.modelversion, self.artifactversion)
         assert "Bucket Helper Error" in str(exc.value)
     
-    @pytest.mark.skip()
-    def test_upload_metrics(self):
-        metrics = {"accuracy": 97}
-        self.obj.upload_metrics( metrics, self.modelname, self.modelversion, self.artifactversion)
-         # In order to check if the test fail or pass, need to check if bucket is created and object is put succesfully
-        assert self.obj.client.get_bucket_index(self.modelname) is not None, "Bucket Fails to create during uploading model metrics"
-        assert self.obj.client.list_objects(Bucket=self.modelname) is not None, "Object Fails to put in the created Bucket during model metrics upload"
+    @patch('modelmetricsdk.model_metrics_sdk.requests.post')
+    def test_upload_metrics(self, mock_post):
+        try:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_post.return_value = mock_response
+            metrics = {"accuracy": 97}
+            self.obj.upload_metrics( metrics, self.trainingjob_id)
+        except Exception as err:
+            assert False, "Test_upload_metircs is supposed to pass, but got an error: " + str(err)
+        
 
-    @pytest.mark.skip()
-    def test_negative_upload_metrics(self):
+    def test_negative_upload_metrics_tm_connection_error(self):
         with pytest.raises(Exception) as exc:
             metrics = {"accuracy": 97}
-            self.obj.upload_metrics( metrics, "Throw_Error", self.modelversion, self.artifactversion)
-        assert "Bucket Helper Error" in str(exc.value)
+            self.obj.upload_metrics( metrics, self.trainingjob_id)
+        assert "Error communicating with TM" in str(exc.value)
 
-    @pytest.mark.skip()
-    def test_get_metrics(self):
+    @patch('modelmetricsdk.model_metrics_sdk.requests.get')
+    def test_get_metrics(self, mock_get):
         expected_metrics = {"accuracy": 97}
-        out = self.obj.get_metrics(self.modelname, self.modelversion, self.artifactversion)
+        
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.headers = {"content-type": "application/json"}
+        mock_response.json.return_value = expected_metrics
+        mock_get.return_value = mock_response
+        
+        out = self.obj.get_metrics(self.trainingjob_id)
         assert out == expected_metrics, "Uploaded and Fetched Metrics Doesn't Match"
 
-    @pytest.mark.skip()
-    def test_negative_get_metrics(self):
+    def test_negative_get_metrics_tm_connection_error(self):
         with pytest.raises(Exception) as exc:
-            expected_metrics = {"accuracy": 97}
-            out = self.obj.get_metrics("Throw_Error", self.modelversion, self.artifactversion)
-        assert "Bucket Doesn't Exists!!" in str(exc.value)
+            self.obj.get_metrics(self.trainingjob_id)
+        assert "Error communicating with TM" in str(exc.value)
 
     @patch('modelmetricsdk.model_metrics_sdk.os.makedirs')
     @patch('modelmetricsdk.model_metrics_sdk.open', return_value = open('test/downloaded_model_file.txt', 'rb'))
@@ -211,37 +220,6 @@ class Test_model_metrics_sdk():
             self.obj.get_model_zip("Throw_Error", self.modelversion, self.artifactversion)
         assert "Bucket Doesn't Exists!!" in str(exc.value)
 
-    @pytest.mark.skip()
-    @patch('modelmetricsdk.model_metrics_sdk.os.makedirs')
-    @patch('modelmetricsdk.model_metrics_sdk.shutil.unpack_archive')
-    @patch('modelmetricsdk.model_metrics_sdk.shutil.copytree')
-    def test_get_model(self, mock1, mock2, mock3):
-        metrics = {"accuracy": 97, 'model_under_version_folder' : True}
-        self.obj.upload_metrics( metrics, self.modelname, self.modelversion, self.artifactversion)
-        self.obj.get_model(self.modelname, self.modelversion, self.artifactversion, download_path="test/model")
-
-    @pytest.mark.skip()
-    @patch('modelmetricsdk.model_metrics_sdk.os.makedirs')
-    @patch('modelmetricsdk.model_metrics_sdk.shutil.unpack_archive')
-    @patch('modelmetricsdk.model_metrics_sdk.shutil.copytree')
-    @patch('modelmetricsdk.model_metrics_sdk.os.path.exists', return_value = True)
-    @patch('modelmetricsdk.model_metrics_sdk.shutil.rmtree')
-    def test_get_model_case2(self, mock1, mock2, mock3, mock4, mock5):
-        '''
-        Case 2: 
-        Model_under_version_folder : False
-        Path /tmp/download/ exists
-        '''
-        metrics = {"accuracy": 97, 'model_under_version_folder' : False}
-        self.obj.upload_metrics( metrics, self.modelname, self.modelversion, self.artifactversion)
-        
-        self.obj.get_model(self.modelname, self.modelversion, self.artifactversion, download_path="test/model")
-
-    @patch('modelmetricsdk.model_metrics_sdk.os.makedirs')
-    def test_negative_get_model(self, mock1):
-        with pytest.raises(Exception) as exc:
-            self.obj.get_model("Throw_Error", self.modelversion, self.artifactversion, download_path="test/model")
-        assert "Bucket Doesn't Exists!!" in str(exc.value)
 
     def test_delete_model_metric(self):
         assert self.obj.delete_model_metric(self.modelname, self.modelversion, self.artifactversion), 'Delete Model Metric Failed'
