@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 import setuptools as setuptools
 setup(
     name='modelmetricsdk',
-    version='0.2',
+    version='0.3',
     description='model store SDK for Training Host',
     url='',
     author='O-RAN Software Community',
