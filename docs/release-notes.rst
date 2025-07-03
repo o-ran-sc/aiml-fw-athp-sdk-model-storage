@@ -23,16 +23,44 @@ Version history
 | 2022-12-08         | 1.0.0              | Joseph Thaliath    | G release          |
 |                    |                    |                    |                    |
 +--------------------+--------------------+--------------------+--------------------+
+| 2025-07-03         | 4.0.0              | Swaraj Kumar       | L release          |
+|                    |                    |                    |                    |
++--------------------+--------------------+--------------------+--------------------+
 
 
 Summary
 -------
 
-The G release of AIMLFW model storage SDK provides functionality to store and retrieve models from model storage
+The L release of AIMLFW model storage SDK provides standalone execution mode and added abstraction for diverse storage mechanisms.
 
 
 Release Data
-------------
+============
+
+L Release 
+-----------
+
++--------------------------------------+---------------------------------------------+
+| **Project**                          | AIMLFW model storage SDK                    |
+|                                      |                                             |
++--------------------------------------+---------------------------------------------+
+| **Repo/commit-ID**                   | aiml-fw/athp/sdk/model-storage              |
+|                                      | /c098ad0b7d1545a950bc67b09b9a5dac5c56d5bf   |
++--------------------------------------+---------------------------------------------+
+| **Release designation**              | L release                                   |
+|                                      |                                             |
++--------------------------------------+---------------------------------------------+
+| **Release date**                     | 2025-07-03                                  |
+|                                      |                                             |
++--------------------------------------+---------------------------------------------+
+| **Purpose of the delivery**          | standalone execution mode and               |
+|                                      | added abstraction for diverse               |
+|                                      | storage mechanisms                          |
++--------------------------------------+---------------------------------------------+
+
+
+G Release 
+-----------
 
 +--------------------------------------+--------------------------------------+
 | **Project**                          | AIMLFW model storage SDK             |
@@ -50,4 +78,3 @@ Release Data
 | **Purpose of the delivery**          | AIMLFW model storage SDK             |
 |                                      |                                      |
 +--------------------------------------+--------------------------------------+
-
