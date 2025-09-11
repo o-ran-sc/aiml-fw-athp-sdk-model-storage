@@ -25,13 +25,19 @@ setup(
     url='',
     author='O-RAN Software Community',
     author_email='discuss@lists.o-ran-sc.org',
-    license='Apache 2.0',
+    license="Apache Software License",
     packages=['modelmetricsdk', 'modelmetricsdk.adapters'],
     package_data={"modelmetricsdk": ['config/config.json']},
     zip_safe=False,
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires=">=3.10",
     install_requires=['boto3',
                       'kubernetes',
-                      'pyyaml']
+                      'pyyaml'],
 )
