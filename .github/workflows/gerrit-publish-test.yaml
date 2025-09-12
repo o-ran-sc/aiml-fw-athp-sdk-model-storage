@@ -20,6 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
+          pip install -U packaging
           pip install twine build
 
       - name: Build the package
