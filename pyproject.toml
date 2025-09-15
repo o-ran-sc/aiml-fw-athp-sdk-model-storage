@@ -22,10 +22,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "modelmetricsdk"
-version = "0.3.1"
+version = "0.3.2"
 description = "model store SDK for Training Host"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
 authors = [
     {name = "O-RAN Software Community", email = "discuss@lists.o-ran-sc.org"}
