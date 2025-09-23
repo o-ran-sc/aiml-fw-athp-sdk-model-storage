@@ -25,6 +25,8 @@ import shutil
 import logging
 import logging.handlers
 import os
+import tempfile
+import zipfile
 
 class pwd_helper():
     def __init__(self):
@@ -251,4 +253,105 @@ class Test_model_metrics_sdk():
     def test_is_bucket_present_when_bucket_is_not_present(self):
         trainingjob_name = "blah"
         assert not self.obj.is_bucket_present(trainingjob_name), 'Bucket {} is present, whereas it should not be present'.format(trainingjob_name)
-    
+
+class Test_export_model:
+    def setup_method(self):
+        # create sdk instance using the same approach as other tests (no external boto3 since existing tests patch it)
+        # however here we instantiate directly; existing tests patch boto3 in their setup; to be safe, instantiate normally
+        # If ModelMetricsSdk requires boto3 client, the original test suite patches it; to avoid side-effects we will
+        # create a lightweight temporary directory structure and call export_model which does not touch S3.
+
+        self.obj = ModelMetricsSdk()
+        self.tmpdir = tempfile.mkdtemp()
+
+    def teardown_method(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _create_dummy_model(self, base_dir, nested=True):
+        """
+        Create a dummy model directory with a couple of files and a subdirectory.
+        Returns the path to the created model directory.
+        """
+        model_dir = os.path.join(base_dir, "dummy_model")
+        os.makedirs(model_dir, exist_ok=True)
+        # create files
+        with open(os.path.join(model_dir, "file1.txt"), "w") as f:
+            f.write("hello")
+        with open(os.path.join(model_dir, "file2.txt"), "w") as f:
+            f.write("world")
+        # create subdir
+        sub = os.path.join(model_dir, "subdir")
+        os.makedirs(sub, exist_ok=True)
+        with open(os.path.join(sub, "subfile.txt"), "w") as f:
+            f.write("sub")
+        return model_dir
+
+    def test_export_model_creates_zip_in_cwd(self):
+        # prepare dummy model
+        model_dir = self._create_dummy_model(self.tmpdir)
+        # change cwd to temp so zip will be created there
+        old_cwd = os.getcwd()
+        os.chdir(self.tmpdir)
+        try:
+            out_path = self.obj.export_model(model_dir, "myname", "v1", "a1", model_under_version_folder=True)
+            # check file exists
+            assert os.path.exists(out_path), "Zip file was not created at expected path"
+            assert out_path.endswith("myname_v1_a1.zip")
+            # inspect zip contents
+            with zipfile.ZipFile(out_path, 'r') as z:
+                names = z.namelist()
+                # since model_under_version_folder=True, top-level folder should be 'v1/'
+                assert any(name.startswith("v1/") for name in names), "Version folder v1 not present inside zip"
+                # check one file inside version folder exists
+                assert any("v1/file1.txt" in name for name in names) or any("v1/dummy_model/file1.txt" in name for name in names) or any("v1/subdir/subfile.txt" in name for name in names)
+        finally:
+            os.chdir(old_cwd)
+            # cleanup created zip
+            try:
+                os.remove(os.path.join(self.tmpdir, "myname_v1_a1.zip"))
+            except Exception:
+                pass
+
+    def test_export_model_without_version_folder(self):
+        model_dir = self._create_dummy_model(self.tmpdir)
+        old_cwd = os.getcwd()
+        os.chdir(self.tmpdir)
+        try:
+            out_path = self.obj.export_model(model_dir, "another", "ver2", "art2", model_under_version_folder=False)
+            assert os.path.exists(out_path)
+            with zipfile.ZipFile(out_path, 'r') as z:
+                names = z.namelist()
+                # when not using version folder, the files should be at top level of zip
+                assert any(name.endswith("file1.txt") for name in names), "file1.txt not found at top level of zip"
+                assert any("subdir/subfile.txt" in name or name.endswith("subdir/subfile.txt") for name in names)
+        finally:
+            os.chdir(old_cwd)
+            try:
+                os.remove(os.path.join(self.tmpdir, "another_ver2_art2.zip"))
+            except Exception:
+                pass
+
+    def test_export_model_overwrites_existing_zip(self):
+        model_dir = self._create_dummy_model(self.tmpdir)
+        old_cwd = os.getcwd()
+        os.chdir(self.tmpdir)
+        zip_name = "dup_v_v.zip"
+        try:
+            # create a dummy existing file at expected path
+            with open(zip_name, "w") as f:
+                f.write("old")
+            # call export_model which should overwrite
+            out_path = self.obj.export_model(model_dir, "dup", "v", "v", model_under_version_folder=False)
+            assert os.path.exists(out_path)
+            # ensure file is a valid zip (not the old content)
+            try:
+                with zipfile.ZipFile(out_path, 'r') as z:
+                    _ = z.namelist()
+            except zipfile.BadZipFile:
+                assert False, "export_model did not overwrite existing file with a valid zip"
+        finally:
+            os.chdir(old_cwd)
+            try:
+                os.remove(os.path.join(self.tmpdir, "dup_v_v.zip"))
+            except Exception:
+                pass
