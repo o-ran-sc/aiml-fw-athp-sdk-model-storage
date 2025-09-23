@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "036e1eca_bf308585",
+        "filename": "test/test_model_metrics_sdk.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1000475
+      },
+      "writtenOn": "2025-09-23T16:03:30Z",
+      "side": 1,
+      "message": "avoid such comments, test case name should able to give the idea of test",
+      "range": {
+        "startLine": 259,
+        "startChar": 8,
+        "endLine": 262,
+        "endChar": 107
+      },
+      "revId": "c6b8c5d1a0260800c4b6adfe1e9518f77634afe6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    }
+  ]
+}
