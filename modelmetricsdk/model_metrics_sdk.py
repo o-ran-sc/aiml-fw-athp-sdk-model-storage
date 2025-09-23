@@ -321,3 +321,43 @@ class ModelMetricsSdk:
         except Exception as err:
             self.logger.error(traceback.format_exc())
             raise SdkException(str(err)) from None
+
+
+    def export_model(self, model_path, model_name, model_version, artifact_version, model_under_version_folder=True):
+        """
+        Convert the model folder/file into a zip and save the zip in the current working directory.
+        Same parameters as upload_model but does NOT upload to any bucket or save metadata.
+        args:
+            model_path: location of folder/file to be exported (expected a directory like upload_model)
+            model_name: kept for signature consistency; used for output filename
+            model_version: version number included in folder structure if model_under_version_folder is True
+            artifact_version: kept for signature consistency; used for output filename
+            model_under_version_folder: whether to place model under a <model_version>/ folder inside zip
+        returns:
+            full path (str) to the created zip file in the current working directory
+        """
+        try:
+            
+            with tempfile.TemporaryDirectory() as tmp_base:
+                model_copy_dir = os.path.join(tmp_base, 'copy')
+                if model_under_version_folder:
+                    version_path = os.path.join(model_copy_dir, str(model_version))
+                    shutil.copytree(model_path, version_path)
+                else:
+                    shutil.copytree(model_path, model_copy_dir)
+                cwd = os.getcwd()
+                out_name_no_ext = f"{model_name}_{model_version}_{artifact_version}"
+                out_zip_full_path = os.path.join(cwd, out_name_no_ext + ".zip")
+                if os.path.exists(out_zip_full_path):
+                    try:
+                        os.remove(out_zip_full_path)
+                    except Exception:
+                        pass
+              
+                base_name_for_archive = os.path.join(cwd, out_name_no_ext)
+                shutil.make_archive(base_name_for_archive, 'zip', root_dir=model_copy_dir)
+                return out_zip_full_path
+        except Exception as err:
+        
+            self.logger.error(traceback.format_exc())
+            raise SdkException(str(err)) from None
