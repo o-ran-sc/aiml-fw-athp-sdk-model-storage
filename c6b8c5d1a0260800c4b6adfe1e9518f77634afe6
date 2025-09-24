@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fc65bc78_9e8465a3",
+        "filename": "modelmetricsdk/model_metrics_sdk.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1002600
+      },
+      "writtenOn": "2025-09-24T05:35:10Z",
+      "side": 1,
+      "message": "updated in the new patchset",
+      "parentUuid": "031a7c2c_4a77c7af",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 30
+      },
+      "revId": "c6b8c5d1a0260800c4b6adfe1e9518f77634afe6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5520e375_dfc235e0",
         "filename": "modelmetricsdk/model_metrics_sdk.py",
         "patchSetId": 1
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c94426d4_4e11f880",
+        "filename": "modelmetricsdk/model_metrics_sdk.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 1002600
+      },
+      "writtenOn": "2025-09-24T05:35:10Z",
+      "side": 1,
+      "message": "removed in the new patchset",
+      "parentUuid": "5520e375_dfc235e0",
+      "range": {
+        "startLine": 365,
+        "startChar": 0,
+        "endLine": 365,
+        "endChar": 115
+      },
+      "revId": "c6b8c5d1a0260800c4b6adfe1e9518f77634afe6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "036e1eca_bf308585",
         "filename": "test/test_model_metrics_sdk.py",
         "patchSetId": 1
@@ -60,6 +108,30 @@
       "writtenOn": "2025-09-23T16:03:30Z",
       "side": 1,
       "message": "avoid such comments, test case name should able to give the idea of test",
+      "range": {
+        "startLine": 259,
+        "startChar": 8,
+        "endLine": 262,
+        "endChar": 107
+      },
+      "revId": "c6b8c5d1a0260800c4b6adfe1e9518f77634afe6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "768c9d4e_80fe6e49",
+        "filename": "test/test_model_metrics_sdk.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 1002600
+      },
+      "writtenOn": "2025-09-24T05:35:10Z",
+      "side": 1,
+      "message": "removed in the new patchset",
+      "parentUuid": "036e1eca_bf308585",
       "range": {
         "startLine": 259,
         "startChar": 8,
